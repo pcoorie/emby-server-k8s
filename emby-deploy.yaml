@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: emby-server
+  labels:
+    run: emby-server
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8096
+    protocol: TCP
+    targetPort: 8096
+    name: http
+  - port: 8920
+    protocol: TCP
+    targetPort: 8920
+    name: https
+  selector:
+    run: emby-server
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: emby-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: emby-server
+    spec:
+      containers:
+      - name: emby-server
+        image: emby/embyserver:latest
+        ports:
+        - containerPort: 8096
+        - containerPort: 8920
+        volumeMounts:
+        - mountPath: /config
+          name: emby-config
+        - mountPath: /mnt/share1
+          name: emby-data
+        - mountPath: /mnt/share2
+          name: emby-s3
+      volumes:
+      - name: emby-config
+        hostPath:
+          path: /emby-config
+          type: Directory
+      - name: emby-data
+        hostPath:
+          path: /emby-data
+          type: Directory
+      - name: emby-s3
+        hostPath:
+          path: /s3-emby2
+          type: Directory
