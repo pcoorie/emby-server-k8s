@@ -44,14 +44,18 @@ spec:
           name: emby-s3
       volumes:
       - name: emby-config
-        hostPath:
-          path: /emby-config
-          type: Directory
+        glusterfs:
+          endpoints: gfs-storage
+          path: emby-config
+          readOnly: false
       - name: emby-data
-        hostPath:
-          path: /emby-data
-          type: Directory
+        glusterfs:
+          endpoints: gfs-storage
+          path: emby-share
+          readOnly: false
       - name: emby-s3
         hostPath:
           path: /s3-emby2
           type: Directory
+      nodeSelector:
+        disktype: sas
